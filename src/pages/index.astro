@@ -1,0 +1,327 @@
+---
+// Page markup. Content comes from src/data/site.js.
+import '../styles/global.css';
+import { site } from '../data/site.js';
+
+const canonical = new URL('/', Astro.site ?? site.url).href;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'GeneralContractor',
+  name: site.name,
+  url: site.url,
+  logo: site.logo,
+  image: site.hero.img,
+  telephone: '+1-' + site.phone,
+  foundingDate: site.foundingDate,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: site.address.street,
+    addressLocality: site.address.city,
+    addressRegion: site.address.region,
+    addressCountry: site.address.country,
+  },
+  areaServed: site.areaServed.map((name) => ({ '@type': 'Place', name })),
+  sameAs: site.social.map((s) => s.href),
+};
+---
+<!doctype html>
+<html lang="en-CA">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{site.title}</title>
+  <meta name="description" content={site.description} />
+  <link rel="canonical" href={canonical} />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="theme-color" content="#1D2420" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content={site.name} />
+  <meta property="og:title" content={site.title} />
+  <meta property="og:description" content={site.description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={site.hero.img} />
+  <meta property="og:locale" content="en_CA" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={site.title} />
+  <meta name="twitter:description" content={site.description} />
+  <meta name="twitter:image" content={site.hero.img} />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+  <link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  <script is:inline>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+  <!-- Utility bar -->
+  <div id="top" class="utility">
+    <div class="wrap">
+      <span>{site.utility.tagline}</span>
+      <a href={site.phoneHref}>{site.utility.callLabel}</a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="wrap bar">
+      <a href="#top" class="logo"><img src={site.logo} alt={site.name} width="300" height="70" /></a>
+      <nav class="main-nav" aria-label="Main">
+        {site.nav.map((n) => <a href={n.href}>{n.label}</a>)}
+      </nav>
+      <div class="header-actions">
+        <a href="#contact" class="btn btn-dark header-cta">Let’s get started</a>
+        <button type="button" class="menu-btn" aria-expanded="false" aria-controls="mobile-nav">
+          <span class="bars" aria-hidden="true"></span> Menu
+        </button>
+      </div>
+    </div>
+    <nav id="mobile-nav" class="mobile-nav" aria-label="Mobile">
+      {site.nav.map((n) => <a href={n.href}>{n.label}</a>)}
+    </nav>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <img class="hero-img" src={site.hero.img} alt={site.hero.imgAlt} fetchpriority="high" />
+      <div class="hero-shade"></div>
+      <div class="wrap hero-inner">
+        <h1 data-hero style="animation-delay:.3s">{site.hero.title}</h1>
+        <div class="hero-side" data-hero style="animation-delay:.45s">
+          <p>{site.hero.text}</p>
+          <div class="btn-row">
+            <a href="#contact" class="btn btn-copper">Book a consultation</a>
+            <a href="#work" class="btn btn-outline">See our work</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Credentials -->
+    <section class="creds" aria-label="Credentials">
+      <div class="wrap">
+        <span class="creds-lead">{site.credsLead}</span>
+        {site.creds.map((c) => <span class="cred">{c}</span>)}
+      </div>
+    </section>
+
+    <!-- What we build -->
+    <section id="build" class="wrap section">
+      <div class="two-col build-head">
+        <h2 class="h2" data-reveal>{site.build.title}</h2>
+        <p data-reveal>{site.build.text}</p>
+      </div>
+      <div class="cards">
+        {site.services.map((s) => (
+          <article class="card" data-reveal>
+            <div class="media"><img src={s.img} alt={s.t} loading="lazy" /></div>
+            <div class="card-head">
+              <h3>{s.t}</h3>
+              <span>{s.k}</span>
+            </div>
+            <p>{s.d}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- Recent builds -->
+    <section id="work" class="work">
+      <div class="wrap section">
+        <div class="work-head">
+          <h2 class="h2" data-reveal>Recent builds.</h2>
+          <div class="filters" data-reveal role="group" aria-label="Filter projects">
+            {site.filters.map((f, i) => (
+              <button type="button" class="filter" data-filter={f} aria-pressed={i === 0 ? 'true' : 'false'}>{f}</button>
+            ))}
+          </div>
+        </div>
+        <div class="gallery">
+          {site.gallery.map((g, i) => (
+            <figure class={'tile media' + (i % 5 === 0 ? ' big' : '')} data-cat={g.c}>
+              <img src={g.src} alt={g.t} loading="lazy" />
+              <figcaption>{g.t}</figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Meet Scotti -->
+    <section id="scotti" class="wrap section two-col scotti">
+      <div class="scotti-left">
+        <p class="eyebrow" data-reveal>{site.scotti.eyebrow}</p>
+        <h2 class="h2-lg" data-reveal>{site.scotti.title}</h2>
+        <div class="stats" data-reveal>
+          {site.scotti.stats.map((s) => (
+            <div class="stat"><strong>{s.n}</strong><span>{s.l}</span></div>
+          ))}
+        </div>
+      </div>
+      <div class="story">
+        {site.scotti.story.map((p) => <p data-reveal>{p}</p>)}
+        <a data-reveal href={site.youtube} target="_blank" rel="noopener">{site.scotti.youtubeLabel}</a>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="contact">
+      <div class="wrap section two-col contact-grid">
+        <div class="contact-left">
+          <h2 class="h2-lg" data-reveal>{site.contact.title}</h2>
+          <p data-reveal>{site.contact.text}</p>
+          <a data-reveal href={site.phoneHref} class="big-phone">{site.phone}</a>
+          <p data-reveal class="addr">{site.address.street}, {site.address.city} {site.address.region}</p>
+        </div>
+        <div>
+          <form class="form" id="contact-form" data-reveal data-endpoint={site.formEndpoint}>
+            <div class="form-row">
+              <label class="field">Name<input name="name" autocomplete="name" required /></label>
+              <label class="field">Phone<input name="phone" type="tel" autocomplete="tel" required /></label>
+            </div>
+            <label class="field">Email<input name="email" type="email" autocomplete="email" required /></label>
+            <fieldset class="chips-group">
+              <legend>Project type</legend>
+              <div class="chips">
+                {site.contact.chips.map((c) => (
+                  <button type="button" class="chip" aria-pressed="false" data-value={c}>{c}</button>
+                ))}
+              </div>
+              <input type="hidden" name="project_type" value="" />
+            </fieldset>
+            <label class="field">Tell us about your project<textarea name="message" rows="4"></textarea></label>
+            <p class="form-error" role="alert" hidden>{site.contact.error}</p>
+            <button type="submit" class="btn btn-dark form-submit">{site.contact.submitLabel}</button>
+          </form>
+          <div class="thanks" id="form-thanks" role="status" hidden>{site.contact.thanks}</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="wrap">
+      <img src={site.logo} alt={site.name} loading="lazy" width="300" height="70" />
+      <div class="social">
+        {site.social.map((s) => <a href={s.href} target="_blank" rel="noopener">{s.label}</a>)}
+      </div>
+      <div class="foot-meta">
+        <span>© {new Date().getFullYear()} {site.name}</span>
+        <a href={site.credit.href} target="_blank" rel="noopener">{site.credit.label}</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Sticky bottom bar (phones and tablets) -->
+  <div class="bottom-bar">
+    <a href={site.phoneHref} class="call">Call</a>
+    <a href="#contact" class="go">Get started</a>
+  </div>
+
+  <script>
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Scroll reveal
+    const revealEls = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
+    const showAll = () => revealEls.forEach((el) => { el.classList.remove('pre-reveal'); el.classList.add('revealed'); });
+    if (!reduce && 'IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        let i = 0;
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          const el = e.target as HTMLElement;
+          const d = Math.min(i++, 5) * 0.08;
+          el.style.transitionDelay = `${d}s`;
+          el.classList.remove('pre-reveal');
+          el.classList.add('revealed');
+          io.unobserve(el);
+        });
+      }, { rootMargin: '0px 0px -8% 0px' });
+      revealEls.forEach((el) => {
+        if (el.getBoundingClientRect().top < window.innerHeight) return;
+        el.classList.add('pre-reveal');
+        io.observe(el);
+      });
+      setTimeout(showAll, 4000); // safety net
+    }
+
+    // Mobile menu
+    const menuBtn = document.querySelector<HTMLButtonElement>('.menu-btn');
+    const mobileNav = document.getElementById('mobile-nav');
+    if (menuBtn && mobileNav) {
+      const setOpen = (open: boolean) => {
+        menuBtn.setAttribute('aria-expanded', String(open));
+        mobileNav.classList.toggle('open', open);
+      };
+      menuBtn.addEventListener('click', () => setOpen(menuBtn.getAttribute('aria-expanded') !== 'true'));
+      mobileNav.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+    }
+
+    // Gallery filters
+    const filterBtns = document.querySelectorAll<HTMLButtonElement>('.filter');
+    const tiles = document.querySelectorAll<HTMLElement>('.gallery .tile');
+    filterBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const f = btn.dataset.filter;
+        filterBtns.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+        let shown = 0;
+        tiles.forEach((t) => {
+          const match = f === 'All' || t.dataset.cat === f;
+          t.hidden = !match;
+          // every fifth visible tile spans two rows (desktop only, via CSS)
+          t.classList.toggle('big', match && shown % 5 === 0);
+          if (match) shown++;
+        });
+      });
+    });
+
+    // Contact form
+    const form = document.getElementById('contact-form') as HTMLFormElement | null;
+    const thanks = document.getElementById('form-thanks');
+    if (form && thanks) {
+      const hidden = form.querySelector<HTMLInputElement>('input[name="project_type"]')!;
+      const chips = form.querySelectorAll<HTMLButtonElement>('.chip');
+      chips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+          chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true'));
+          hidden.value = Array.from(chips)
+            .filter((c) => c.getAttribute('aria-pressed') === 'true')
+            .map((c) => c.dataset.value)
+            .join(', ');
+        });
+      });
+
+      const errorEl = form.querySelector<HTMLElement>('.form-error')!;
+      const submitBtn = form.querySelector<HTMLButtonElement>('.form-submit')!;
+      const showThanks = () => { form.hidden = true; thanks.hidden = false; };
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!form.reportValidity()) return;
+        errorEl.hidden = true;
+        const endpoint = form.dataset.endpoint;
+        if (!endpoint) { showThanks(); return; }
+        submitBtn.disabled = true;
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { Accept: 'application/json' },
+          });
+          if (!res.ok) throw new Error(String(res.status));
+          showThanks();
+        } catch {
+          errorEl.hidden = false;
+        } finally {
+          submitBtn.disabled = false;
+        }
+      });
+    }
+  </script>
+</body>
+</html>
